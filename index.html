@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Atividades - Turma</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind Config for Colors & Fonts -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#10B981',
+                        darkBg: '#0F172A',
+                        darkCard: '#1E293B'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body
+    class="bg-gray-50 text-gray-900 dark:bg-darkBg dark:text-gray-100 min-h-screen transition-colors duration-300 antialiased relative overflow-x-hidden">
+
+    <!-- Background Decoration -->
+    <div
+        class="absolute top-0 left-0 w-full h-96 bg-gradient-to-br from-primary/10 to-purple-600/10 clip-path-slant -z-10">
+    </div>
+    <div class="absolute -top-24 -right-24 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10"></div>
+
+    <div class="container mx-auto px-4 py-10 max-w-5xl">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-10 glass-panel p-4 rounded-2xl animate-fade-in-down">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-primary text-white rounded-lg shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 14l9-5-9-5-9 5 9 5z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight">Atividades da Turma</h1>
+            </div>
+            <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                <span id="themeIcon">🌙</span>
+            </button>
+        </header>
+
+        <!-- Role Selection Panel -->
+        <div id="roleSelection"
+            class="flex flex-col md:flex-row gap-6 justify-center items-center mt-20 animate-fade-in-up">
+            <div onclick="selectRole('professor')"
+                class="glass-card w-full md:w-1/3 p-8 rounded-3xl cursor-pointer hover:scale-105 hover:shadow-2xl transition duration-300 border border-transparent hover:border-primary/50 text-center group">
+                <div class="text-6xl mb-4 group-hover:-translate-y-2 transition duration-300">👨‍🏫</div>
+                <h2 class="text-2xl font-bold mb-2">Sou Professor</h2>
+                <p class="text-gray-500 dark:text-gray-400 text-sm">Gerenciar atividades e dar notas</p>
+            </div>
+            <div onclick="selectRole('aluno')"
+                class="glass-card w-full md:w-1/3 p-8 rounded-3xl cursor-pointer hover:scale-105 hover:shadow-2xl transition duration-300 border border-transparent hover:border-secondary/50 text-center group">
+                <div class="text-6xl mb-4 group-hover:-translate-y-2 transition duration-300">🎓</div>
+                <h2 class="text-2xl font-bold mb-2">Sou Aluno</h2>
+                <p class="text-gray-500 dark:text-gray-400 text-sm">Verificar minhas notas e atividades</p>
+            </div>
+        </div>
+
+        <!-- Teacher Login View -->
+        <div id="teacherLoginView" class="hidden flex flex-col items-center justify-center mt-20 animate-fade-in-up">
+            <h2 class="text-3xl font-bold mb-6 text-center">Acesso do Professor</h2>
+            <form id="teacherLoginForm" class="glass-card p-8 rounded-3xl w-full max-w-md shadow-2xl">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">E-mail do Professor:</label>
+                    <input type="email" id="teacherEmailInput"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkCard focus:ring-2 focus:ring-primary outline-none transition"
+                        placeholder="professor@escola.com" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2">Senha Segura:</label>
+                    <input type="password" id="teacherPasswordInput"
+                        class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkCard focus:ring-2 focus:ring-primary outline-none transition"
+                        placeholder="••••••••" required>
+                    <p id="teacherLoginError" class="text-red-500 text-sm mt-2 hidden">E-mail ou senha incorretos.</p>
+                </div>
+                <div class="flex gap-4">
+                    <button type="button" onclick="goBack()"
+                        class="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-xl transition font-semibold">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Voltar
+                    </button>
+                    <button type="submit"
+                        class="flex-1 py-3 bg-primary hover:bg-indigo-600 text-white rounded-xl transition font-semibold shadow-lg hover:shadow-xl">Entrar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Teacher Dashboard -->
+        <div id="teacherView" class="hidden space-y-8 animate-fade-in">
+            <div class="flex justify-between items-center">
+                <h2 class="text-3xl font-bold flex items-center gap-2"><span class="text-4xl">📚</span> Painel do
+                    Professor</h2>
+                <button onclick="goBack()"
+                    class="flex items-center gap-1 text-sm px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Retornar
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Manage Activities -->
+                <div
+                    class="glass-card p-6 rounded-2xl md:col-span-1 shadow-lg border border-gray-200/50 dark:border-gray-700/50">
+                    <h3 class="text-xl font-semibold mb-4 text-primary dark:text-indigo-400">Nova Atividade</h3>
+                    <form id="addActivityForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Nome da Atividade</label>
+                            <input type="text" id="activityName"
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkCard focus:ring-2 focus:ring-primary outline-none transition"
+                                required placeholder="Ex: Prova Surpresa">
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-primary hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg transition shadow-md hover:shadow-xl">
+                            + Adicionar Atividade
+                        </button>
+                    </form>
+
+                    <div class="mt-8">
+                        <h4 class="font-medium text-gray-500 dark:text-gray-400 mb-2 uppercase text-xs tracking-wider">
+                            Atividades Cadastradas</h4>
+                        <ul id="activitiesListAdmin" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
+                            <!-- Activities populated by JS -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Manage Students & Grades -->
+                <div
+                    class="glass-card p-6 rounded-2xl md:col-span-2 shadow-lg border border-gray-200/50 dark:border-gray-700/50 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold text-secondary dark:text-emerald-400">Quadro de Notas da Turma
+                        </h3>
+                        <button onclick="openAddStudentModal()"
+                            class="text-xs bg-secondary hover:bg-emerald-600 text-white px-3 py-1 rounded-full transition shadow-sm">+
+                            Novo Aluno</button>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scrollbar flex-grow">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="border-b border-gray-200 dark:border-gray-700 text-sm uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                    <th class="py-3 pr-4 font-semibold">Aluno</th>
+                                    <th class="py-3 px-4 text-center font-semibold">Nota (0 a 10)</th>
+                                    <th class="py-3 pl-4 font-semibold" id="dynamicHeadersActivities">Atividades</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                        <div id="noStudentsMsg" class="hidden text-center py-10 text-gray-500">Nenhum aluno cadastrado.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Login/Selection view -->
+        <div id="studentLoginView" class="hidden flex flex-col items-center justify-center mt-20 animate-fade-in-up">
+            <h2 class="text-3xl font-bold mb-6 text-center">Acessar meu Boletim</h2>
+            <div class="glass-card p-8 rounded-3xl w-full max-w-md shadow-2xl">
+                <label class="block text-sm font-medium mb-2">Selecione seu nome na lista:</label>
+                <select id="studentSelector"
+                    class="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkCard focus:ring-2 focus:ring-secondary outline-none transition mb-6">
+                    <option value="" disabled selected>Carregando alunos...</option>
+                </select>
+                <div class="flex gap-4">
+                    <button onclick="goBack()"
+                        class="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-xl transition font-semibold">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Voltar
+                    </button>
+                    <button onclick="loginAsStudent()"
+                        class="flex-1 py-3 bg-secondary hover:bg-emerald-600 text-white rounded-xl transition font-semibold shadow-lg hover:shadow-xl">Acessar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Dashboard -->
+        <div id="studentDashboard" class="hidden space-y-8 animate-fade-in">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold flex items-center gap-2">
+                    <div
+                        class="w-12 h-12 bg-gradient-to-tr from-secondary to-teal-400 rounded-full flex items-center justify-center text-white text-xl shadow-lg">
+                        <span id="studentAvatar">🎓</span>
+                    </div>
+                    Olá, <span id="studentNameDisplay"
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary">Aluno</span>!
+                </h2>
+                <button onclick="logoutStudent()"
+                    class="flex items-center gap-1 text-sm px-4 py-2 bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 rounded-lg transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Sair
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Grade display -->
+                <div
+                    class="glass-card p-8 rounded-3xl md:col-span-1 shadow-2xl border border-gray-200/50 dark:border-gray-700/50 flex flex-col items-center justify-center relative overflow-hidden text-center group">
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-green-500/5 dark:to-green-500/10">
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2 relative z-10">Sua Nota Atual
+                    </h3>
+
+                    <div
+                        class="relative w-40 h-40 flex items-center justify-center z-10 my-4 transform group-hover:scale-105 transition-transform duration-500">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                            <!-- Background circle -->
+                            <circle class="text-gray-200 dark:text-gray-700 stroke-current" stroke-width="8" cx="50"
+                                cy="50" r="40" fill="transparent"></circle>
+                            <!-- Progress circle -->
+                            <circle id="gradeCircle"
+                                class="text-secondary stroke-current drop-shadow-lg transition-all duration-1000 ease-out"
+                                stroke-width="8" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent"
+                                stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
+                        </svg>
+                        <div class="absolute flex flex-col items-center justify-center">
+                            <span id="studentGradeDisplay"
+                                class="text-5xl font-black text-gray-800 dark:text-white drop-shadow-md">0</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">/ 10</span>
+                        </div>
+                    </div>
+
+                    <p id="gradeMessage" class="mt-2 text-sm font-medium z-10"></p>
+                </div>
+
+                <!-- Activities List -->
+                <div
+                    class="glass-card p-6 rounded-3xl md:col-span-2 shadow-lg border border-gray-200/50 dark:border-gray-700/50">
+                    <h3 class="text-xl font-semibold mb-6">Suas Atividades</h3>
+
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="flex-1 bg-gray-200 dark:bg-gray-700 h-3 rounded-full overflow-hidden">
+                            <div id="studentProgressBar"
+                                class="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-1000 w-0">
+                            </div>
+                        </div>
+                        <span id="studentProgressText"
+                            class="text-sm font-bold text-gray-600 dark:text-gray-300">0%</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="studentActivitiesGrid">
+                        <!-- Activities populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modals -->
+    <!-- Add Student Modal -->
+    <div id="addStudentModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-card w-full max-w-md p-6 rounded-2xl shadow-2xl mx-4 transform scale-95 transition-transform duration-300"
+            id="addStudentModalInner">
+            <h3 class="text-xl font-bold mb-4">Adicionar Novo Aluno</h3>
+            <form id="addStudentForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Nome Compledo</label>
+                    <input type="text" id="newStudentName"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkCard focus:ring-2 focus:ring-primary outline-none transition"
+                        required placeholder="Ex: Maria Oliveira">
+                </div>
+                <div class="flex gap-3 justify-end mt-6">
+                    <button type="button" onclick="closeAddStudentModal()"
+                        class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 rounded-lg transition font-medium">Cancelar</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-primary hover:bg-indigo-700 text-white rounded-lg transition font-medium">Salvar
+                        Aluno</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rename Student Modal -->
+    <div id="renameStudentModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-card w-full max-w-md p-6 rounded-2xl shadow-2xl mx-4 transform scale-95 transition-transform duration-300"
+            id="renameStudentModalInner">
+            <h3 class="text-xl font-bold mb-4">Renomear Aluno</h3>
+            <form id="renameStudentForm" class="space-y-4">
+                <input type="hidden" id="renameStudentId">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Novo Nome</label>
+                    <input type="text" id="renameStudentName"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkCard focus:ring-2 focus:ring-primary outline-none transition"
+                        required placeholder="Ex: Maria Silva">
+                </div>
+                <div class="flex gap-3 justify-end mt-6">
+                    <button type="button" onclick="closeRenameStudentModal()"
+                        class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 rounded-lg transition font-medium">Cancelar</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition font-medium">Atualizar
+                        Nome</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rename Activity Modal -->
+    <div id="renameActivityModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-card w-full max-w-md p-6 rounded-2xl shadow-2xl mx-4 transform scale-95 transition-transform duration-300"
+            id="renameActivityModalInner">
+            <h3 class="text-xl font-bold mb-4 text-blue-600 dark:text-blue-400">Renomear Atividade</h3>
+            <form id="renameActivityForm" class="space-y-4">
+                <input type="hidden" id="renameActivityId">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Novo Nome da Atividade</label>
+                    <input type="text" id="renameActivityName"
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-darkCard focus:ring-2 focus:ring-primary outline-none transition"
+                        required placeholder="Ex: Trabalho de Física">
+                </div>
+                <div class="flex gap-3 justify-end mt-6">
+                    <button type="button" onclick="closeRenameActivityModal()"
+                        class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 rounded-lg transition font-medium">Cancelar</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition font-medium">Atualizar
+                        Nome</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Remove Student Modal -->
+    <div id="removeStudentModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-card w-full max-w-md p-6 rounded-2xl shadow-2xl mx-4 transform scale-95 transition-transform duration-300"
+            id="removeStudentModalInner">
+            <h3 class="text-xl font-bold mb-2 text-red-600 dark:text-red-400 flex items-center gap-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Confirmar Exclusão
+            </h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-6 text-sm" id="removeStudentMessage">
+                Tem certeza que deseja remover este aluno? Todo o histórico será perdido.
+            </p>
+            <form id="removeStudentForm" class="space-y-4">
+                <input type="hidden" id="removeStudentId">
+                <div class="flex gap-3 justify-end">
+                    <button type="button" onclick="closeRemoveStudentModal()"
+                        class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 rounded-lg transition font-medium">Cancelar</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition font-medium">Sim,
+                        Excluir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Remove Activity Modal -->
+    <div id="removeActivityModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-card w-full max-w-md p-6 rounded-2xl shadow-2xl mx-4 transform scale-95 transition-transform duration-300"
+            id="removeActivityModalInner">
+            <h3 class="text-xl font-bold mb-2 text-red-600 dark:text-red-400 flex items-center gap-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Confirmar Exclusão
+            </h3>
+            <p class="text-gray-600 dark:text-gray-300 mb-6 text-sm" id="removeActivityMessage">
+                Tem certeza que deseja excluir esta atividade? Todos perdem o registro.
+            </p>
+            <form id="removeActivityForm" class="space-y-4">
+                <input type="hidden" id="removeActivityId">
+                <div class="flex gap-3 justify-end">
+                    <button type="button" onclick="closeRemoveActivityModal()"
+                        class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 rounded-lg transition font-medium">Cancelar</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition font-medium">Sim,
+                        Excluir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Firebase Compat SDKs (Suporte direto na página HTML para funcionar via 'file://') -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <!-- Scripts da aplicação -->
+    <script src="app.js"></script>
+    <script>
+        // UI Logic - Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+
+        // Check local storage or system preference
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            themeIcon.textContent = '☀️';
+        } else {
+            document.documentElement.classList.remove('dark');
+            themeIcon.textContent = '🌙';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+                themeIcon.textContent = '🌙';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+                themeIcon.textContent = '☀️';
+            }
+        });
+
+        // Basic Navigation functions (to be integrated softly with app.js if needed)
+        function selectRole(role) {
+            document.getElementById('roleSelection').classList.add('hidden');
+            if (role === 'professor') {
+                document.getElementById('teacherLoginView').classList.remove('hidden');
+            } else {
+                document.getElementById('studentLoginView').classList.remove('hidden');
+            }
+        }
+
+        function goBack() {
+            document.getElementById('teacherView').classList.add('hidden');
+            document.getElementById('teacherLoginView').classList.add('hidden');
+            document.getElementById('studentLoginView').classList.add('hidden');
+            document.getElementById('studentDashboard').classList.add('hidden');
+
+            // Clear any error states and inputs
+            document.getElementById('teacherEmailInput').value = '';
+            document.getElementById('teacherPasswordInput').value = '';
+            document.getElementById('teacherLoginError').classList.add('hidden');
+
+            document.getElementById('roleSelection').classList.remove('hidden');
+        }
+
+        // Teacher Login form handling is now inside app.js (Firebase Auth)
+
+        // Modals generic logic
+        function openAddStudentModal() {
+            const modal = document.getElementById('addStudentModal');
+            const inner = document.getElementById('addStudentModalInner');
+            modal.classList.remove('hidden');
+            // Small timeout for transition
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                inner.classList.remove('scale-95');
+                inner.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeAddStudentModal() {
+            const modal = document.getElementById('addStudentModal');
+            const inner = document.getElementById('addStudentModalInner');
+            modal.classList.add('opacity-0');
+            inner.classList.remove('scale-100');
+            inner.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function openRenameStudentModal(studentId, currentName) {
+            const modal = document.getElementById('renameStudentModal');
+            const inner = document.getElementById('renameStudentModalInner');
+            document.getElementById('renameStudentId').value = studentId;
+            document.getElementById('renameStudentName').value = currentName;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                inner.classList.remove('scale-95');
+                inner.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeRenameStudentModal() {
+            const modal = document.getElementById('renameStudentModal');
+            const inner = document.getElementById('renameStudentModalInner');
+            modal.classList.add('opacity-0');
+            inner.classList.remove('scale-100');
+            inner.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function openRenameActivityModal(activityId, currentName) {
+            const modal = document.getElementById('renameActivityModal');
+            const inner = document.getElementById('renameActivityModalInner');
+            document.getElementById('renameActivityId').value = activityId;
+            document.getElementById('renameActivityName').value = currentName;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                inner.classList.remove('scale-95');
+                inner.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeRenameActivityModal() {
+            const modal = document.getElementById('renameActivityModal');
+            const inner = document.getElementById('renameActivityModalInner');
+            modal.classList.add('opacity-0');
+            inner.classList.remove('scale-100');
+            inner.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function openRemoveActivityModal(activityId) {
+            const modal = document.getElementById('removeActivityModal');
+            const inner = document.getElementById('removeActivityModalInner');
+            document.getElementById('removeActivityId').value = activityId;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                inner.classList.remove('scale-95');
+                inner.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeRemoveActivityModal() {
+            const modal = document.getElementById('removeActivityModal');
+            const inner = document.getElementById('removeActivityModalInner');
+            modal.classList.add('opacity-0');
+            inner.classList.remove('scale-100');
+            inner.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function openRemoveStudentModal(studentId, currentName) {
+            const modal = document.getElementById('removeStudentModal');
+            const inner = document.getElementById('removeStudentModalInner');
+            document.getElementById('removeStudentId').value = studentId;
+            document.getElementById('removeStudentMessage').innerHTML = `Tem certeza que deseja remover o aluno(a) <strong>${currentName}</strong>?<br>Todo o histórico será perdido.`;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                inner.classList.remove('scale-95');
+                inner.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeRemoveStudentModal() {
+            const modal = document.getElementById('removeStudentModal');
+            const inner = document.getElementById('removeStudentModalInner');
+            modal.classList.add('opacity-0');
+            inner.classList.remove('scale-100');
+            inner.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+    </script>
+</body>
+
+</html>
